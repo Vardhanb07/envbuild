@@ -35,14 +35,15 @@ var rootCmd = &cobra.Command{
 	Long: `Envbuild allows you to build your .env files from a schema.
 Envbuild generates .env file using the env vars or by a key value store.`,
 	Example: `
-- envbuild
+- envbuild <path>
 
-This looks .envbuild.toml files in current working directory and builds .env in it.
+This looks .envbuild.toml files in <path> and builds .env in it.
 
 - envbuild --env-file <file-path>
 
 This loads <file-path> and builds .env in the base path.`,
 	Version: "0.0.1",
+	Args:    cobra.RangeArgs(1, 1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
@@ -56,5 +57,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&envFile, "env-file", ".", "env file path")
+	rootCmd.PersistentFlags().StringVar(&envFile, "env-file", ".envbuild.toml", "env file path")
 }
