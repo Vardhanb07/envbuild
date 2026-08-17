@@ -22,6 +22,10 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"os"
+
+	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
 
@@ -29,19 +33,32 @@ var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "A brief description of your command",
 	Example: `
-- envbuild update <key> <value>
+- envbuild update <key> <cmd>
 
 Update key value pair in .env file.
 
-- envbuild update --key <key> --value <value>
+- envbuild update --key <key> --cmd <cmd>
 
 Update key value pair in .env file.
 
-- envbuild update -k <key> -v <value>
+- envbuild update -k <key> -c <cmd>
 
 Update key value pair in .env file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return nil
+		key := cmd.Flag("key").Value.String()
+		c := cmd.Flag("cmd").Value.String()
+		if err := config.Update(envFile, key, c); err != nil {
+			return err
+		}
+		cfg, err := config.Read(envFile)
+		if err != nil {
+			return err
+		}
+		wd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		return env.Build(cfg, wd)
 	},
 }
 
@@ -49,5 +66,5 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 
 	updateCmd.Flags().StringP("key", "k", "", "key")
-	updateCmd.Flags().StringP("value", "v", "", "value")
+	updateCmd.Flags().StringP("cmd", "c", "", "cmd")
 }

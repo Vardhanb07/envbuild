@@ -19,50 +19,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package env
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/Vardhanb07/envbuild/internal/config"
-	"github.com/Vardhanb07/envbuild/internal/env"
-	"github.com/spf13/cobra"
 )
 
-var envFile string
-
-var rootCmd = &cobra.Command{
-	Use:   "envbuild",
-	Short: "Build .env from a schema",
-	Long: `Envbuild allows you to build your .env files from a schema.
-Envbuild generates .env file using the env vars or by a key value store.`,
-	Example: `
-- envbuild <path>
-
-This looks .envbuild.toml files in <path> and builds .env in it.
-
-- envbuild --env-file <file-path>
-
-This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
-	Args:    cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.Read(envFile)
+func Build(cfg config.Config, path string) error {
+	content := strings.Builder{}
+	for _, env := range cfg.Env {
+		val, err := execCmd(env.Cmd)
 		if err != nil {
 			return err
 		}
-		wd, err := os.Getwd()
-		return env.Build(cfg, wd)
-	},
-}
-
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+		fmt.Fprintf(&content, "%v='%v'\n", env.Key, string(val))
 	}
+	return os.WriteFile(filepath.Join(path, ".env"), []byte(content.String()), 0777)
 }
 
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&envFile, "env-file", "e", ".envbuild.toml", "env file path")
+func execCmd(cmd string) ([]byte, error) {
+	cPath, err := exec.LookPath("bash")
+	if err != nil {
+		return []byte{}, err
+	}
+	c := exec.Command(cPath, "-c", cmd)
+	return c.CombinedOutput()
 }

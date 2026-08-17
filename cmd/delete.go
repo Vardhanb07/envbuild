@@ -22,6 +22,10 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"os"
+
+	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +38,19 @@ var deleteCmd = &cobra.Command{
 Deletes all keys in .env file.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return nil
+		key := args[0]
+		if err := config.Delete(envFile, key); err != nil {
+			return err
+		}
+		cfg, err := config.Read(envFile)
+		if err != nil {
+			return err
+		}
+		wd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		return env.Build(cfg, wd)
 	},
 }
 

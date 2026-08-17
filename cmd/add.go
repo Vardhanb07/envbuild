@@ -23,7 +23,10 @@ package cmd
 
 import (
 	"errors"
+	"os"
 
+	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
 
@@ -31,15 +34,15 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "append env kv",
 	Example: `
-- envbuild add <key> <value>
+- envbuild add <key> <cmd>
 
 Append key value pair to the .env file.
 
-- envbuild add --key <key> --value <value>
+- envbuild add --key <key> --cmd <cmd>
 
 Append key value pair to the .env file.
 
-- envbuild add -k <key> -v <value>
+- envbuild add -k <key> -c <cmd>
 
 Append key value pair to the .env file.`,
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -49,7 +52,20 @@ Append key value pair to the .env file.`,
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return nil
+		key := cmd.Flag("key").Value.String()
+		c := cmd.Flag("cmd").Value.String()
+		if err := config.Add(envFile, key, c); err != nil {
+			return err
+		}
+		cfg, err := config.Read(envFile)
+		if err != nil {
+			return err
+		}
+		wd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		return env.Build(cfg, wd)
 	},
 }
 
@@ -57,5 +73,5 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 
 	addCmd.Flags().StringP("key", "k", "", "key")
-	addCmd.Flags().StringP("value", "v", "", "value")
+	addCmd.Flags().StringP("cmd", "c", "", "cmd")
 }
