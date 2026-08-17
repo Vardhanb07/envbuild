@@ -22,40 +22,32 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-var envFile string
-
-var rootCmd = &cobra.Command{
-	Use:   "envbuild",
-	Short: "Build .env from a schema",
-	Long: `Envbuild allows you to build your .env files from a schema.
-Envbuild generates .env file using the env vars or by a key value store.`,
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "A brief description of your command",
 	Example: `
-- envbuild <path>
+- envbuild update <key> <value>
 
-This looks .envbuild.toml files in <path> and builds .env in it.
+Update key value pair in .env file.
 
-- envbuild --env-file <file-path>
+- envbuild update --key <key> --value <value>
 
-This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
-	Args:    cobra.ExactArgs(1),
+Update key value pair in .env file.
+
+- envbuild update -k <key> -v <value>
+
+Update key value pair in .env file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
 }
 
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&envFile, "env-file", "e", ".envbuild.toml", "env file path")
+	rootCmd.AddCommand(updateCmd)
+
+	updateCmd.Flags().StringP("key", "k", "", "key")
+	updateCmd.Flags().StringP("value", "v", "", "value")
 }

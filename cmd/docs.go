@@ -25,37 +25,36 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 )
 
-var envFile string
-
-var rootCmd = &cobra.Command{
-	Use:   "envbuild",
-	Short: "Build .env from a schema",
-	Long: `Envbuild allows you to build your .env files from a schema.
-Envbuild generates .env file using the env vars or by a key value store.`,
+var docsCmd = &cobra.Command{
+	Use:   "docs",
+	Short: "Generate docs",
 	Example: `
-- envbuild <path>
+- envbuild docs
 
-This looks .envbuild.toml files in <path> and builds .env in it.
+Generates docs in ./docs.
 
-- envbuild --env-file <file-path>
+- envbuild docs --directory <dir>
 
-This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
-	Args:    cobra.ExactArgs(1),
+Generates docs in <dir>.
+
+- envbuild docs -d <dir>
+
+Generates docs in <dir>.`,
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return nil
+		dir := cmd.Flag("directory")
+		if err := os.MkdirAll(dir.Value.String(), 0777); err != nil {
+			return err
+		}
+		return doc.GenMarkdownTree(cmd.Root(), dir.Value.String())
 	},
 }
 
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&envFile, "env-file", "e", ".envbuild.toml", "env file path")
+	rootCmd.AddCommand(docsCmd)
+
+	docsCmd.Flags().StringP("directory", "d", "./docs", "generated docs are placed in this directory")
 }

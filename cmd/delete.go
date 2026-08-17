@@ -22,40 +22,22 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-var envFile string
-
-var rootCmd = &cobra.Command{
-	Use:   "envbuild",
-	Short: "Build .env from a schema",
-	Long: `Envbuild allows you to build your .env files from a schema.
-Envbuild generates .env file using the env vars or by a key value store.`,
+var deleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "delete a env kv",
 	Example: `
-- envbuild <path>
+- envbuild delete <key>
 
-This looks .envbuild.toml files in <path> and builds .env in it.
-
-- envbuild --env-file <file-path>
-
-This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
-	Args:    cobra.ExactArgs(1),
+Deletes all keys in .env file.`,
+	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
 }
 
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&envFile, "env-file", "e", ".envbuild.toml", "env file path")
+	rootCmd.AddCommand(deleteCmd)
 }

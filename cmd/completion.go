@@ -22,40 +22,29 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-var envFile string
-
-var rootCmd = &cobra.Command{
-	Use:   "envbuild",
-	Short: "Build .env from a schema",
-	Long: `Envbuild allows you to build your .env files from a schema.
-Envbuild generates .env file using the env vars or by a key value store.`,
-	Example: `
-- envbuild <path>
-
-This looks .envbuild.toml files in <path> and builds .env in it.
-
-- envbuild --env-file <file-path>
-
-This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
-	Args:    cobra.ExactArgs(1),
+var completionCmd = &cobra.Command{
+	Use:       "completion",
+	Short:     "Generate shell completions",
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"zsh", "fish", "bash", "powershell"},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		switch args[0] {
+		case "zsh":
+			return cmd.Root().GenZshCompletion(cmd.OutOrStdout())
+		case "fish":
+			return cmd.Root().GenFishCompletion(cmd.OutOrStdout(), true)
+		case "bash":
+			return cmd.Root().GenBashCompletion(cmd.OutOrStdout())
+		case "powershell":
+			return cmd.Root().GenPowerShellCompletion(cmd.OutOrStdout())
+		}
 		return nil
 	},
 }
 
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&envFile, "env-file", "e", ".envbuild.toml", "env file path")
+	rootCmd.AddCommand(completionCmd)
 }
