@@ -54,6 +54,10 @@ Append key value pair to the .env file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		key := cmd.Flag("key").Value.String()
 		c := cmd.Flag("cmd").Value.String()
+		if key == "" && c == "" {
+			key = args[0]
+			c = args[1]
+		}
 		if err := config.Add(envFile, key, c); err != nil {
 			return err
 		}

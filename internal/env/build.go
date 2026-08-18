@@ -38,7 +38,7 @@ func Build(cfg config.Config, path string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(&content, "%v='%v'\n", env.Key, string(val))
+		fmt.Fprintf(&content, "%v=%v\n", env.Key, string(val))
 	}
 	return os.WriteFile(filepath.Join(path, ".env"), []byte(content.String()), 0777)
 }
