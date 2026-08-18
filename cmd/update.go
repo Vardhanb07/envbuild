@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/dir"
 	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
@@ -51,10 +52,14 @@ Update key value pair in .env file.`,
 			key = args[0]
 			c = args[1]
 		}
-		if err := config.Update(envFile, key, c); err != nil {
+		path, err := dir.Resolve(envFile)
+		if err != nil {
 			return err
 		}
-		cfg, err := config.Read(envFile)
+		if err := config.Update(path, key, c); err != nil {
+			return err
+		}
+		cfg, err := config.Read(path)
 		if err != nil {
 			return err
 		}

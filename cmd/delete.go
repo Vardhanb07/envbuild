@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/dir"
 	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
@@ -39,10 +40,14 @@ Deletes all keys in .env file.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		key := args[0]
-		if err := config.Delete(envFile, key); err != nil {
+		path, err := dir.Resolve(envFile)
+		if err != nil {
 			return err
 		}
-		cfg, err := config.Read(envFile)
+		if err := config.Delete(path, key); err != nil {
+			return err
+		}
+		cfg, err := config.Read(path)
 		if err != nil {
 			return err
 		}

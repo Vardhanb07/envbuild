@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"github.com/Vardhanb07/envbuild/internal/config"
+	"github.com/Vardhanb07/envbuild/internal/dir"
 	"github.com/Vardhanb07/envbuild/internal/env"
 	"github.com/spf13/cobra"
 )
@@ -47,7 +48,11 @@ This loads <file-path> and builds .env in the base path.`,
 	Version: "0.1.0",
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.Read(envFile)
+		path, err := dir.Resolve(envFile)
+		if err != nil {
+			return err
+		}
+		cfg, err := config.Read(path)
 		if err != nil {
 			return err
 		}

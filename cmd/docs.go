@@ -24,6 +24,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/Vardhanb07/envbuild/internal/dir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -45,11 +46,15 @@ Generates docs in <dir>.
 Generates docs in <dir>.`,
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dir := cmd.Flag("directory")
-		if err := os.MkdirAll(dir.Value.String(), 0777); err != nil {
+		d := cmd.Flag("directory")
+		path, err := dir.Resolve(d.Value.String())
+		if err != nil {
 			return err
 		}
-		return doc.GenMarkdownTree(cmd.Root(), dir.Value.String())
+		if err := os.MkdirAll(path, 0777); err != nil {
+			return err
+		}
+		return doc.GenMarkdownTree(cmd.Root(), path)
 	},
 }
 
