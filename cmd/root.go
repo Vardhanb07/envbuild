@@ -44,7 +44,7 @@ This looks .envbuild.toml files in <path> and builds .env in it.
 - envbuild --env-file <file-path>
 
 This loads <file-path> and builds .env in the base path.`,
-	Version: "0.0.1",
+	Version: "0.1.0",
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg, err := config.Read(envFile)
